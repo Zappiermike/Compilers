@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="c3/generated"/>
+	<classpathentry kind="src" path="c3/src"/>
+	<classpathentry kind="lib" path="c3/javalib/java-cup-10k-TUM-runtime.jar"/>
+	<classpathentry kind="lib" path="c3/javalib/java-cup-10k-TUM.jar"/>
+	<classpathentry kind="lib" path="c3/javalib/JFlex.jar"/>
+	<classpathentry kind="output" path="c3/bin"/>
+</classpath>
