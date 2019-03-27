@@ -1,0 +1,15 @@
+This is the README for Michael Scheie's Compilers Lab 2 Submission
+
+Comments have been added accordingly to the following files:
+	testProgram.c
+	EmptyStmt.java
+	Parser.cup
+	Scanner.jflex
+
+Parser.cup, Scanner.jflex, and testProgram.c have their comments contained within the code.
+
+EmptyStmt.java has the comments contained the code as well, but can also be seen in .html format.
+
+NOTE: Since this lab actively modifies the code between phases, older phases
+will no longer work due to those changes.
+

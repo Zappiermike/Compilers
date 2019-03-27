@@ -1,0 +1,161 @@
+<project name="Compiler" default="test_compiler" basedir=".">
+	<property name="src"              location="src"              />
+	<property name="generated"		  location="generated"        />
+	<property name="classes"          location="bin"              />
+	<property name="doc"              location="doc"              />
+	<property name="lib"              location="lib"              />
+	<property name="javalib"          location="javalib"          />
+	<property name="test_source"      location="testProgram.c"    />
+	<property name="assembly"         location="testProgram.ll"   />
+	<property name="library_source"   location="${src}/library.c" />
+	<property name="library_assembly" location="${lib}/library.ll"/>
+	<property name="executable"       location="testProgram"      />
+
+	<path id="binaries">
+		<fileset dir="${javalib}" includes="**/*.jar" />
+		<pathelement path="${java.class.path}" />
+		<pathelement path="${classes}" />
+	</path>
+
+	<taskdef name="jflex" 
+           classname="JFlex.anttask.JFlexTask" 
+           classpathref="binaries" 
+    />
+
+	<taskdef name="cup" 
+           classname="java_cup.anttask.CUPTask" 
+           classpathref="binaries"
+    />
+
+	<target name="init">
+		<mkdir dir="${generated}"/>
+		<mkdir dir="${classes}"/>
+		<mkdir dir="${lib}"/>
+	</target>
+
+	<target name="cup" depends="init">
+		<cup srcfile="${src}/Parser.cup" 
+         	destdir="${generated}" 
+         	parser="Parser"
+			classpathref="binaries"
+    />
+	</target>
+
+	<target name="cup_dump" depends="init">
+		<cup srcfile="${src}/Parser.cup" 
+			destdir="${generated}" 
+			parser="Parser"
+			force="true"
+			dump_grammar="true"
+			dump_states="true"
+			classpathref="binaries"
+    />
+	</target>
+
+	<target name="jflex" depends="cup">
+		<jflex file="${src}/scanner.jflex" destdir="${generated}" />
+	</target>
+
+	<target name="dependencies" depends="jflex">
+		<uptodate property="YylexOK"
+     		srcfile="${generated}/sym.java"
+     		targetfile="${classes}/Yylex.class" />
+		<uptodate property="ActionsOK"
+     		srcfile="${generated}/Parser.java"
+     		targetfile="${classes}/CUP$Parser$actions.class" />
+	</target>
+
+	<target name="remove_Yylex" depends="dependencies" unless="YylexOK">
+		<delete file="${classes}/Yylex.class" />
+		<delete file="${classes}/Compiler.class" />
+	</target>
+
+	<target name="remove_Actions" depends="remove_Yylex" unless="ActionsOK">
+		<delete file="${classes}/CUP$Parser$actions.class" />
+		<delete file="${classes}/Parser.class" />
+		<delete file="${classes}/Compiler.class" />
+	</target>
+
+	<target name="compile_java" depends="remove_Actions">
+		<javac destdir="${classes}" includeAntRuntime="false">
+			<src path="${src}" />
+			<src path="${generated}" />
+			<classpath refid="binaries" />
+		</javac>
+	</target>
+
+	<target name="test_scanner" depends="compile_java">
+		<java classname="Yylex" fork="true" failonerror="true" classpathref="binaries">
+			<arg file="${test_source}" />
+		</java>
+	</target>
+
+	<target name="test_parser" depends="compile_java">
+		<java classname="Compiler" fork="true" failonerror="true" classpathref="binaries">
+			<arg value="-debug" />
+			<arg file="${test_source}" />
+			<arg file="${assembly}" />
+		</java>
+	</target>
+
+	<target name="assembly_from_ast" depends="compile_java">
+		<java classname="TestAST" fork="true" failonerror="true" classpathref="binaries">
+			<arg file="${assembly}" />
+		</java>
+	</target>
+
+	<target name="assembly_from_source" depends="compile_java">
+		<java classname="Compiler" fork="true" failonerror="true" classpathref="binaries">
+			<arg file="${test_source}" />
+			<arg file="${assembly}" />
+		</java>
+	</target>
+
+	<target name="compile_library" depends="init">
+		<exec executable="clang" failonerror="true">
+			<arg value="-emit-llvm" />
+			<arg value="-S" />
+			<arg value="-o" />
+			<arg file="${library_assembly}" />
+			<arg file="${library_source}" />
+		</exec>
+	</target>
+
+	<target name="executable" depends="compile_library">
+		<exec executable="clang" failonerror="true" logError="true">
+			<arg value="-o" />
+			<arg file="${executable}" />
+			<arg file="${library_assembly}" />
+			<arg file="${assembly}" />
+		</exec>
+	</target>
+
+	<target name="execute" depends="executable">
+		<exec executable="${executable}" />
+	</target>
+
+	<target name="test_compiler" depends="assembly_from_source,execute" />
+
+	<target name="test_ast" depends="assembly_from_ast,execute" />
+
+	<target name="clean">
+		<delete file="${assembly}" />
+		<delete file="${executable}" />
+		<delete dir="${classes}" />
+		<delete dir="${lib}" />
+		<delete dir="${doc}" />
+		<delete>
+			<fileset dir="${generated}" includes="*" />
+		</delete>
+		<delete>
+			<fileset dir="." includes="**/*~" defaultexcludes="no" />
+		</delete>
+	</target>
+
+	<target name="doc">
+		<javadoc destdir="${doc}" overview="${src}/overview.html">
+			<link href="http://java.sun.com/javase/6/docs/api/" />
+			<fileset dir="${src}" includes="**/**.java" />
+		</javadoc>
+	</target>
+</project>
