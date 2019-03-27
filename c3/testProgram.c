@@ -16,6 +16,8 @@ int main(){
 //	  println(anothernumber);
 	int x = 3, y;
 	y =4;
+	println(y);
+	println(x);
 
 
 }

@@ -8,6 +8,8 @@ terminal SEMI, LCURLY, RCURLY, COMMA;
 
 non terminal Procedure program;
 non terminal Stmt stmt;
+non terminal Stmt decl;
+non terminal Stmt decls;
 
 
  /** Added a new non-terminal Statement called stmts. This is used for the last phase in the project
@@ -36,29 +38,56 @@ program ::= INT:i LETTER:l LPAREN RPAREN LCURLY stmts:s RCURLY
 //Added our keyword SEMI following each statement according to phase three
 stmt ::= expr:e SEMI
          {: RESULT = new ExprStmt(e); :}
-         |	          
-         // Added this parsing expression for declarations
-	     INT LETTER:l SEMI
-	     {: RESULT = new DeclarationStmt(l); :}
-	     |
-	     INT LETTER:key EQUALS expr:value SEMI
-	     {: RESULT = new SequenceStmt(new DeclarationStmt(key), new AssignmentStmt(key, value)); :}  
-	     |
-	     LETTER:key EQUALS expr:value SEMI
-	     {: RESULT = new AssignmentStmt(key, value); :}  
-	     |
-         INT LETTER:l COMMA stmt:s
-         {: RESULT = new SequenceStmt(new DeclarationStmt(l),s); :}
          |
-         LETTER:l COMMA stmt:s
-         {: RESULT = new SequenceStmt(new DeclarationStmt(l),s); :}
+         INT decls:ds SEMI
+         {: RESULT = ds; :}
          |
-         LETTER:l EQUALS expr:e COMMA stmt:s
-         {: RESULT = new SequenceStmt(new SequenceStmt(new DeclarationStmt(l), new AssignmentStmt(l,e)), s); :}     
-         |
-         INT LETTER:l EQUALS expr:e COMMA stmt:s
-         {: RESULT = new SequenceStmt(new SequenceStmt(new DeclarationStmt(l), new AssignmentStmt(l,e)), s); :}         
+         LETTER:l EQUALS expr:e SEMI
+         {: RESULT = new AssignmentStmt(l,e); :}
          ;
+         
+         
+decl ::= LETTER:l
+         {: RESULT = new DeclarationStmt(l); :}
+         |
+         LETTER:l EQUALS expr:e
+         {: RESULT = new SequenceStmt(new DeclarationStmt(l), new AssignmentStmt(l,e)); :}
+		 ;
+
+
+decls ::= decls:ds COMMA decl:d
+          {: RESULT = new SequenceStmt(ds, d); :}
+          |
+          decl:d
+          {: RESULT = d; :}
+		  ;
+
+
+//         expr:e SEMI
+//         {: RESULT = new ExprStmt(e); :}
+//         |	          
+//        // Added this parsing expression for declarations
+//	     INT LETTER:l SEMI
+//	     {: RESULT = new DeclarationStmt(l); :}
+//	     |
+//	     INT LETTER:key EQUALS expr:value SEMI
+//	     {: RESULT = new SequenceStmt(new DeclarationStmt(key), new AssignmentStmt(key, value)); :}  
+//	     |
+//	     LETTER:key EQUALS expr:value SEMI
+//	     {: RESULT = new AssignmentStmt(key, value); :}  
+//	     |
+//        INT LETTER:l COMMA stmt:s
+//         {: RESULT = new SequenceStmt(new DeclarationStmt(l),s); :}
+//         |
+//         LETTER:l COMMA stmt:s
+//         {: RESULT = new SequenceStmt(new DeclarationStmt(l),s); :}
+//         |
+//         LETTER:l EQUALS expr:e COMMA stmt:s
+//         {: RESULT = new SequenceStmt(new SequenceStmt(new DeclarationStmt(l), new AssignmentStmt(l,e)), s); :}     
+//         |
+//         INT LETTER:l EQUALS expr:e COMMA stmt:s
+//         {: RESULT = new SequenceStmt(new SequenceStmt(new DeclarationStmt(l), new AssignmentStmt(l,e)), s); :}         
+//         ;
          
          
          
