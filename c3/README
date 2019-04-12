@@ -13,3 +13,17 @@ EmptyStmt.java has the comments contained the code as well, but can also be seen
 NOTE: Since this lab actively modifies the code between phases, older phases
 will no longer work due to those changes.
 
+//////////////////////////////////////////////////////////////////////////////////////
+This is the README for Michael Scheie's Compilers Lab 3 Submission
+Collaborators: Cody, Kelsan, Tony, Bryan, Greg, James
+
+Comments have been added accordingly to the following files
+	AssignmentStmt.java
+	Compiler.java
+	DeclarationStmt.java
+	LoadExpr.java
+	SymbolTable.java
+	Parser.cup
+	scanner.jflex
+	
+NOTE: The .java files have comments contained in the code, but it can also be seen in .html format.

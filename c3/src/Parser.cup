@@ -1,26 +1,32 @@
 terminal PLUS, MINUS, TIMES, DIVIDE, MOD;
-terminal LPAREN, RPAREN, EQUALS;
+terminal LPAREN, RPAREN;
 terminal UMINUS, ILLEGAL_CHAR;
+
 
 //Added most of the following terminals listed below based on requirements listed in the project
 terminal String NUMBER, LETTER, INT;
-terminal SEMI, LCURLY, RCURLY, COMMA;
+terminal SEMI, LCURLY, RCURLY, COMMA, EQUALS;
+
 
 non terminal Procedure program;
 non terminal Stmt stmt;
+
+
+/** Added a new non-terminal Statements called stmts, decl, and decls. stmts takes care of 
+ * cases when we want multiple statements within the program. decl and decls handle the
+ * situation when we want to define/assign multiple variables/values within one line,
+ * each command being separated by a comma.
+ */
+non terminal Stmt stmts;
+non terminal Expr expr;
 non terminal Stmt decl;
 non terminal Stmt decls;
 
 
- /** Added a new non-terminal Statement called stmts. This is used for the last phase in the project
-  * it takes care of cases when we want multiple statements within the program
-  */
-non terminal Stmt stmts;
-non terminal Expr expr;
-
 precedence left PLUS, MINUS;
 precedence left TIMES, DIVIDE, MOD;
 precedence left UMINUS;
+
 
 
 /** Program was heavily modified to work for the fourth phase in the project. We added an outline 
@@ -35,7 +41,14 @@ program ::= INT:i LETTER:l LPAREN RPAREN LCURLY stmts:s RCURLY
                                                        new ReturnStmt(new ConstExpr(0)))); :}
             ;
 
-//Added our keyword SEMI following each statement according to phase three
+
+
+/** Statement has three options, the first is to take an expression followed by a semicolon.
+ * The second option is when we have multiple commands occurring in the same line. This calls
+ * our declaration decls. We continue running decls until a semicolon is seen.
+ * The third option is an assignment statement where we want to assign some value to an already 
+ * defined variable.
+ */
 stmt ::= expr:e SEMI
          {: RESULT = new ExprStmt(e); :}
          |
@@ -43,18 +56,30 @@ stmt ::= expr:e SEMI
          {: RESULT = ds; :}
          |
          LETTER:l EQUALS expr:e SEMI
-         {: RESULT = new AssignmentStmt(l,e); :}
+         {: RESULT = new AssignmentStmt(l,e, lleft); :}
          ;
          
          
+         
+/** decl is a statement that gets called when the parser comes across something that needs to be 
+ * defined. There are two options. The first is where we just define the variable name. There is
+ * no need to add the INT or SEMI portion as decl is already contained between those two in stmt.
+ * The second option is where we are declaring the variable as well as assigning it a value.
+ */
 decl ::= LETTER:l
-         {: RESULT = new DeclarationStmt(l); :}
+         {: RESULT = new DeclarationStmt(l, lleft); :}
          |
          LETTER:l EQUALS expr:e
-         {: RESULT = new SequenceStmt(new DeclarationStmt(l), new AssignmentStmt(l,e)); :}
+         {: RESULT = new SequenceStmt(new DeclarationStmt(l, lleft), new AssignmentStmt(l,e,lleft)); :}
 		 ;
-
-
+		 
+		 
+	
+/** decls is a statment that gets called when the parser runs into multiple statments that are trying
+ * to be defined/assigned in the same line. Each command is separated by a comma, and we continue
+ * to recursively call decls until there is no more comma being found. decls doesn't need an INT or
+ * SEMI as it is contained within a stmt from above
+ */
 decls ::= decls:ds COMMA decl:d
           {: RESULT = new SequenceStmt(ds, d); :}
           |
@@ -62,33 +87,6 @@ decls ::= decls:ds COMMA decl:d
           {: RESULT = d; :}
 		  ;
 
-
-//         expr:e SEMI
-//         {: RESULT = new ExprStmt(e); :}
-//         |	          
-//        // Added this parsing expression for declarations
-//	     INT LETTER:l SEMI
-//	     {: RESULT = new DeclarationStmt(l); :}
-//	     |
-//	     INT LETTER:key EQUALS expr:value SEMI
-//	     {: RESULT = new SequenceStmt(new DeclarationStmt(key), new AssignmentStmt(key, value)); :}  
-//	     |
-//	     LETTER:key EQUALS expr:value SEMI
-//	     {: RESULT = new AssignmentStmt(key, value); :}  
-//	     |
-//        INT LETTER:l COMMA stmt:s
-//         {: RESULT = new SequenceStmt(new DeclarationStmt(l),s); :}
-//         |
-//         LETTER:l COMMA stmt:s
-//         {: RESULT = new SequenceStmt(new DeclarationStmt(l),s); :}
-//         |
-//         LETTER:l EQUALS expr:e COMMA stmt:s
-//         {: RESULT = new SequenceStmt(new SequenceStmt(new DeclarationStmt(l), new AssignmentStmt(l,e)), s); :}     
-//         |
-//         INT LETTER:l EQUALS expr:e COMMA stmt:s
-//         {: RESULT = new SequenceStmt(new SequenceStmt(new DeclarationStmt(l), new AssignmentStmt(l,e)), s); :}         
-//         ;
-         
          
          
 /**Created this new statement called stmts to handle cases where we want multiple statements within the program
@@ -99,8 +97,9 @@ stmts ::= {: RESULT = new EmptyStmt(); :}
           stmt:s stmts:ss
           {: RESULT = new SequenceStmt(s, ss); :}
           ;
-          
-
+         
+         
+         
 expr      ::= expr:l PLUS expr:r
               {: RESULT = new SumExpr(l, r); :}
 	      |
@@ -133,6 +132,9 @@ expr      ::= expr:l PLUS expr:r
               LPAREN expr:e RPAREN
               {: RESULT = e; :}
           |
+              /**Added this expression for when someone calls just the name, the value 
+               * associated will be loaded
+               */
               LETTER:l
-              {: RESULT = new LoadExpr(l); :}
+              {: RESULT = new LoadExpr(l, lleft); :}
 	      ;

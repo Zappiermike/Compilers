@@ -1,23 +1,16 @@
 //Last phase: Multi-Statements
 int main(){
-//	int test;
-//	test = 50 + 350;
-//	int answer;
-//	answer = test + 20;
+	// These four lines will throw all errors related to this project
+//	int x,x;
+//	x = 5;
+//	y = x + 5;
+//	y = y + y;
 
-//  	println(14+6);
-//  	println(2+2);
-//  	println(200+666);
-//	int examplevariable1;
-//	  int fellerNumber;
-//	  fellerNumber = 10+7;
-//	  int anothernumber;
-//	  anothernumber = fellerNumber + 3;
-//	  println(anothernumber);
-	int x = 3, y;
-	y =4;
+	int y;
 	println(y);
-	println(x);
-
+// These three lines will test all parts of the project
+//	int x=1,y;
+//	y = x + 1;
+//	println(y);
 
 }

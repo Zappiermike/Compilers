@@ -12,7 +12,11 @@ public class Compiler {
 	/** Compiles a source file, writing out the LLVM code into another file.
 	 *  @param args command line arguments; should contain two: the source and assembly filenames
 	 */
-
+	
+	/** Declaration of our <code>counter</code>
+	 */
+	private static int counter = 0;
+	
 	static public void main(String[] args) throws Exception{
 
 		String inputFileName = null;
@@ -42,6 +46,11 @@ public class Compiler {
 
 		Procedure mainProc = (Procedure) parseTree.value;
 		String mainCode = mainProc.toLLVM();
+		
+		// After running the main in LLVM, we want to see if any errors were thrown 
+		// by checking our <code>counter</code>. If some are found, exit immediately.
+		if (counter > 0)
+			System.exit(1);
 
 		try {
 			FileWriter output = new FileWriter(outputFileName);
@@ -54,6 +63,36 @@ public class Compiler {
 			System.exit(1);
 		}
 	}
+	
+	
+	/** Method <code>reportErrorDecl</code> to handle errors when attempting to declare the same variable more than once
+	 */
+	public static void reportErrorDecl(String key, int characterLocation) {
+		if (SymbolTable.exists(key)) {
+			System.err.println("Error, variable " + "\"" + key + "\"" + " already exists. Character Number: " + characterLocation);
+			counter++;
+			// If the total number of errors is 5, we need to exit immediately
+			if (counter == 5) {
+				System.exit(1);
+			}
+		}
+	}
+	
+	/** Method <code>reportErrorAssign</code> to handle errors when attempting to assign some value to 
+	 * some variable that has not been defined.
+	 */
+	public static void reportErrorAssign(String key, int characterLocation) {
+		if (SymbolTable.exists(key) == false) {
+			System.err.println("Error, variable " + "\"" + key + "\"" + " does not exist. Character Number: " + characterLocation);
+			counter++;
+			SymbolTable.setVal(key, null);
+			// If the total number of errors is 5, we need to exit immediately
+			if (counter == 5) {
+				System.exit(1);
+			}
+		}
+	}
 
 	private Compiler(){}  // purely static class; no public default constructor
+
 }

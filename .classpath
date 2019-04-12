@@ -6,5 +6,6 @@
 	<classpathentry kind="lib" path="c3/javalib/java-cup-10k-TUM-runtime.jar"/>
 	<classpathentry kind="lib" path="c3/javalib/java-cup-10k-TUM.jar"/>
 	<classpathentry kind="lib" path="c3/javalib/JFlex.jar"/>
+	<classpathentry kind="src" path="/c3"/>
 	<classpathentry kind="output" path="c3/bin"/>
 </classpath>
