@@ -1,16 +1,13 @@
 //Last phase: Multi-Statements
 int main(){
-	// These four lines will throw all errors related to this project
-//	int x,x;
-//	x = 5;
-//	y = x + 5;
-//	y = y + y;
+	// 0 means false
+	// 1 means true
 
-	int y;
-	println(y);
-// These three lines will test all parts of the project
-//	int x=1,y;
-//	y = x + 1;
-//	println(y);
+	println(7<4);
+	println(3>6);
+	println(1==0);
+	println(8<=6);
+	println(4>=6);
+	println(7!=7);
 
 }
