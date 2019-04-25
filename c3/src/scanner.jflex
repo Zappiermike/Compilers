@@ -21,7 +21,11 @@ import java_cup.runtime.Symbol;
 %%
 
 //Added int to denote that it is a keyword for the scanner to recognize and not just a regular LETTER
-"int"                   {return makeToken(sym.INT);}
+int                     {return makeToken(sym.INT);}
+if                      {return makeToken(sym.IF);}
+while                   {return makeToken(sym.WHILE);}
+else                    {return makeToken(sym.ELSE);}
+return                  {return makeToken(sym.RETURN);}
 
 //Added this regex string to find any name that starts with a letter and can be followed by more letters/numbers.
 [a-zA-Z][a-zA-Z0-9]*    {return makeToken(sym.LETTER, yytext());}

@@ -4,29 +4,8 @@
 
 public class EqEqExpr extends ComparisonExpr {
 
-	private Expr left_int;
-	private Expr right_int;
-	
-	
-	/** Constructs a <code>SumExpr</code> from two <code>expr</code> arguments.
-	 *  @param left the first expr argument
-	 *  @param right the second expr argument
-	 */
-	
-	public EqEqExpr(Expr left, Expr right) {
-		this.left_int = left;
-		this.right_int = right;
-		
+	public EqEqExpr(Expr left_arg, Expr right_arg) {
+		super(left_arg, right_arg);
+		operator = "eq";
 	}
-
-	/** Creates a new <code>Operator</code> object from the two constructor arguments, sets the operand using
-	 * the <code>setOperand</code> method, and then uses that superclass's method <code>toLLVM()</code>
-	 *  @param <code>left_int</code> is the first argument
-	 *  @param <code>right_int</code> is the second argument
-	 */
-	public ValueAndCode toLLVM() {
-		ComparisonExpr comparison = new ComparisonExpr(left_int, right_int);
-		comparison.setComp("eq");
-		return comparison.toLLVM();
-	}	
 }

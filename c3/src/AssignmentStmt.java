@@ -12,22 +12,25 @@ public class AssignmentStmt extends Stmt {
 	private Expr value;
 	private String key;
 	private int characterLocation;
+	private String pointer;
 	
 	/** Constructor for the class
 	 */	
-	public AssignmentStmt(String k, Expr v, int cl) {
+	public AssignmentStmt(String k, Expr v, int cl, String point) {
 		this.key = k;
 		this.value = v;
 		this.characterLocation = cl;
+		this.pointer = point;
 	}
 	
 	/** <code>toLLVM</code> method that first checks to make sure that the variable we are assigning has been
 	 * declared already. If it has not, the code will stop and throw an error.
 	 */
 	public String toLLVM() {
-		// Error needs to be thrown if trying to assign something that has not been declared
-		Compiler.reportErrorAssign(key, characterLocation);
+		if (pointer == null) {
+			Compiler.error("Error at " + characterLocation + ". This variable has not been declared!");
+		}
 		ValueAndCode llvm = value.toLLVM();
-		return llvm.getCode() + "   " + " store" + " i32 " + llvm.getValue() + ", " + "i32* " + SymbolTable.getVal(key) + "\n";
+		return llvm.getCode() + "    " + " store" + " i32 " + llvm.getValue() + ", " + "i32* " + SymbolTable.getTable().getVal(key) + "\n";
 	};
 }

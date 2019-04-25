@@ -46,18 +46,18 @@ public class Compiler {
 
 		Procedure mainProc = (Procedure) parseTree.value;
 		String mainCode = mainProc.toLLVM();
-		
-		// After running the main in LLVM, we want to see if any errors were thrown 
-		// by checking our <code>counter</code>. If some are found, exit immediately.
-		if (counter > 0)
-			System.exit(1);
 
 		try {
-			FileWriter output = new FileWriter(outputFileName);
-			output.write("target triple = \"" + Target.TRIPLE + "\"\n");
-			output.write(LibraryDeclarations.get());
-			output.write(mainCode);
-			output.close();
+			if (counter == 0) {
+				FileWriter output = new FileWriter(outputFileName);
+				output.write("target triple = \"" + Target.TRIPLE + "\"\n");
+				output.write(LibraryDeclarations.get());
+				output.write(mainCode);
+				output.close();
+			}
+			else {
+				System.exit(1);
+			}
 		} catch(IOException e){
 			System.err.println("I/O exception: " + e);
 			System.exit(1);
@@ -65,32 +65,11 @@ public class Compiler {
 	}
 	
 	
-	/** Method <code>reportErrorDecl</code> to handle errors when attempting to declare the same variable more than once
-	 */
-	public static void reportErrorDecl(String key, int characterLocation) {
-		if (SymbolTable.exists(key)) {
-			System.err.println("Error, variable " + "\"" + key + "\"" + " already exists. Character Number: " + characterLocation);
-			counter++;
-			// If the total number of errors is 5, we need to exit immediately
-			if (counter == 5) {
-				System.exit(1);
-			}
-		}
-	}
-	
-	/** Method <code>reportErrorAssign</code> to handle errors when attempting to assign some value to 
-	 * some variable that has not been defined.
-	 */
-	public static void reportErrorAssign(String key, int characterLocation) {
-		if (SymbolTable.exists(key) == false) {
-			System.err.println("Error, variable " + "\"" + key + "\"" + " does not exist. Character Number: " + characterLocation);
-			counter++;
-			SymbolTable.setVal(key, null);
-			// If the total number of errors is 5, we need to exit immediately
-			if (counter == 5) {
-				System.exit(1);
-			}
-		}
+	private static final int ERRORLIMIT = 5;
+	public static void error(String message) {
+		System.err.println(message);
+		if(counter++ == ERRORLIMIT)
+			System.exit(1);
 	}
 
 	private Compiler(){}  // purely static class; no public default constructor

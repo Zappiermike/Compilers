@@ -22,9 +22,11 @@ public class LoadExpr extends Expr{
 	 * doing that, we test to make sure that the variable has already been declared.
 	 */
 	public ValueAndCode toLLVM() {
-		Compiler.reportErrorAssign(variable, characterLocation);
+		if (SymbolTable.getTable().getVal(variable) == null) {
+			Compiler.error("Error at " + characterLocation + ". There is no value assigned to this variable!");
+		}
 		String reg_location = NameAllocator.getTempAllocator().next();
-		String code = "    " + reg_location + " = " + "load" + " i32, i32* " + SymbolTable.getVal(variable) + "\n";
+		String code = "    " + reg_location + " = " + "load" + " i32, i32* " + SymbolTable.getTable().getVal(variable) + "\n";
 		return new ValueAndCode(reg_location, code);
 	}
 	

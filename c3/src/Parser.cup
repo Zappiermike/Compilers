@@ -4,7 +4,7 @@ terminal UMINUS, ILLEGAL_CHAR;
 
 
 //Added most of the following terminals listed below based on requirements listed in the project
-terminal String NUMBER, LETTER, INT;
+terminal String NUMBER, LETTER, INT, IF, WHILE, ELSE, RETURN;
 terminal SEMI, LCURLY, RCURLY, COMMA, EQUALS;
 terminal MORE, LESS, MOREEQ, LESSEQ, EQEQ, NOTEQ;
 
@@ -23,10 +23,9 @@ non terminal Expr expr;
 non terminal Stmt decl;
 non terminal Stmt decls;
 
-
 precedence left PLUS, MINUS;
 precedence left TIMES, DIVIDE, MOD;
-precedence nonassoc MORE, LESS, MOREEQ, LESSEQ, EQEQ, NOTEQ;
+precedence nonassoc MORE, LESS, MOREEQ, LESSEQ, EQEQ, NOTEQ, ELSE;
 precedence left UMINUS;
 
 
@@ -41,8 +40,23 @@ program ::= INT:i LETTER:l LPAREN RPAREN LCURLY stmts:s RCURLY
             {: RESULT = new Procedure(l,
                                       new SequenceStmt(s,
                                                        new ReturnStmt(new ConstExpr(0)))); :}
+            |
+            INT LETTER:l LPAREN RPAREN LCURLY RCURLY
+            {: RESULT = new Procedure(l, new ReturnStmt(new ConstExpr(0))); :}
             ;
 
+
+
+/**Created this new statement called stmts to handle cases where we want multiple statements within the program
+ * otherwise, if no arguments are given, the program will return nothing.
+ */
+stmts ::= stmt:s stmts:ss
+          {: RESULT = new SequenceStmt(s, ss); :}
+          |
+          stmt:s
+          {: RESULT = s; :}
+          ;
+         
 
 
 /** Statement has three options, the first is to take an expression followed by a semicolon.
@@ -58,25 +72,30 @@ stmt ::= expr:e SEMI
          {: RESULT = ds; :}
          |
          LETTER:l EQUALS expr:e SEMI
-         {: RESULT = new AssignmentStmt(l,e, lleft); :}
+         {: String pointer = SymbolTable.getTable().getVal(l);
+            RESULT  = new AssignmentStmt(l,e, lleft, pointer); :}
+         |
+         IF LPAREN expr:e RPAREN stmt:s
+         {: RESULT = new IfStmt(e,s); :}
+         |
+         IF LPAREN expr:e RPAREN stmt:s ELSE stmt:s2
+         {: RESULT = new IfElseStmt(e,s,s2); :}
+         |
+         WHILE LPAREN expr:e RPAREN stmt:s
+         {: RESULT = new WhileStmt(e,s); :}
+         |
+         LCURLY
+         {: SymbolTable.getTable().enterScope(); :}
+         stmts: s
+         {: RESULT = s; :}
+         RCURLY
+         {: SymbolTable.getTable().exitScope(); :}
+         |
+         RETURN expr:e SEMI
+         {: RESULT = new ReturnStmt(e); :}
          ;
          
          
-         
-/** decl is a statement that gets called when the parser comes across something that needs to be 
- * defined. There are two options. The first is where we just define the variable name. There is
- * no need to add the INT or SEMI portion as decl is already contained between those two in stmt.
- * The second option is where we are declaring the variable as well as assigning it a value.
- */
-decl ::= LETTER:l
-         {: RESULT = new DeclarationStmt(l, lleft); :}
-         |
-         LETTER:l EQUALS expr:e
-         {: RESULT = new SequenceStmt(new DeclarationStmt(l, lleft), new AssignmentStmt(l,e,lleft)); :}
-		 ;
-		 
-		 
-	
 /** decls is a statment that gets called when the parser runs into multiple statments that are trying
  * to be defined/assigned in the same line. Each command is separated by a comma, and we continue
  * to recursively call decls until there is no more comma being found. decls doesn't need an INT or
@@ -87,18 +106,34 @@ decls ::= decls:ds COMMA decl:d
           |
           decl:d
           {: RESULT = d; :}
-		  ;
-
+		  ;         
          
          
-/**Created this new statement called stmts to handle cases where we want multiple statements within the program
- * otherwise, if no arguments are given, the program will return nothing.
+         
+/** decl is a statement that gets called when the parser comes across something that needs to be 
+ * defined. There are two options. The first is where we just define the variable name. There is
+ * no need to add the INT or SEMI portion as decl is already contained between those two in stmt.
+ * The second option is where we are declaring the variable as well as assigning it a value.
  */
-stmts ::= {: RESULT = new EmptyStmt(); :}
-          |
-          stmt:s stmts:ss
-          {: RESULT = new SequenceStmt(s, ss); :}
-          ;
+decl ::= LETTER:l
+		 {: String pointer = SymbolTable.getTable().getLocal(l);
+		 	String val = NameAllocator.getTempAllocator().next();
+		 	if (pointer == null)
+		 		SymbolTable.getTable().setVal(l, val);
+		 	RESULT = new DeclarationStmt(l, lleft, pointer, val); :}
+		 |
+		 LETTER:l EQUALS expr:e
+		 {: String pointer = SymbolTable.getTable().getLocal(l);
+		 	String val = NameAllocator.getTempAllocator().next();
+		 	if (pointer == null)
+		 		SymbolTable.getTable().setVal(l, val);
+		 	Stmt s = new DeclarationStmt(l, lleft, pointer, val);
+		 	pointer = SymbolTable.getTable().getVal(l);
+		 	Stmt s2 = new AssignmentStmt(l, e, lleft, pointer);
+		 	RESULT = new SequenceStmt(s,s2); :}
+		 ;
+
+
          
          
          

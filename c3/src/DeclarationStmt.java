@@ -15,14 +15,18 @@ public class DeclarationStmt extends Stmt {
 	 */	
 	private String var_name;
 	private int character_location;
+	private String pointer;
+	private String value;
 	
 	
 	
 	/** Constructor for the class
 	 */	
-	public DeclarationStmt(String variable, int cl) {
+	public DeclarationStmt(String variable, int cl, String point, String value) {
 		this.var_name = variable;
 		this.character_location = cl;
+		this.pointer = point;
+		this.value = value;
 	}
 	
 
@@ -30,10 +34,11 @@ public class DeclarationStmt extends Stmt {
 	 * has not already been declared. If the variable is a duplicate, the code will stop and throw and error.
 	 */	
 	public String toLLVM() {
-            Compiler.reportErrorDecl(var_name, character_location);
-			String reg_location = NameAllocator.getTempAllocator().next();
-			String code = "    " + reg_location + " = " + "alloca" + " i32 " + "\n";
-			SymbolTable.setVal(var_name, reg_location);
+			if (pointer != null) {
+				Compiler.error("Error at " + character_location + ". This value already exists!\n");
+			}
+			SymbolTable.getTable().setVal(var_name, value);
+			String code = "    " + value + " = alloca i32 \n";
 			return code;
 		}
 	};
