@@ -1,4 +1,5 @@
-//Last phase: Multi-Statements
+
+
 int main(){
 	// 0 means false
 	// 1 means true
@@ -17,21 +18,29 @@ int main(){
 //	println(6>=6);
 //	println(6!=7);
 
-
-	int x = 0;
-	if (3<4)
-		println(111111);
-
-	if (3<4){
+// All of these test the IF,ELSE,WHILE conditions
+//	int x = 0;
+//	if (3<4)
+//		println(111111);
+//
+	if (5<4){
 		println(222222);
-	}else {
+	} else {
 		println(333333);
 	}
-	while(x<10){
-		println(x);
-		x = x + 1;
-	}
-	println(x + 30);
+//	while(x<10){
+//		println(x);
+//		x = x + 1;
+//	}
+//	println(x + 30);
+
+// This tests the variable allocation issue
+//	int n = 100;
+//	      while (n) {
+//	        int x = n;
+//	        println(x);
+//	        n = n - 1;
+//	      }
 
 
 }

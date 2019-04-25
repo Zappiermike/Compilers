@@ -48,6 +48,7 @@ public class Compiler {
 		String mainCode = mainProc.toLLVM();
 
 		try {
+			// Check to see if any errors have occurred before continuing
 			if (counter == 0) {
 				FileWriter output = new FileWriter(outputFileName);
 				output.write("target triple = \"" + Target.TRIPLE + "\"\n");
@@ -55,6 +56,7 @@ public class Compiler {
 				output.write(mainCode);
 				output.close();
 			}
+			// If errors are found, exit the compiler immediately
 			else {
 				System.exit(1);
 			}
@@ -64,11 +66,15 @@ public class Compiler {
 		}
 	}
 	
-	
+	/**	<code>error</code> is a static void method that will stop the compiler if it 
+	 * finds more than 5 errors while compiling. The code will also display the according
+	 * message depending on what the issue is.
+	 */
 	private static final int ERRORLIMIT = 5;
 	public static void error(String message) {
 		System.err.println(message);
-		if(counter++ == ERRORLIMIT)
+		counter++;
+		if(counter == ERRORLIMIT)
 			System.exit(1);
 	}
 

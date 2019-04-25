@@ -1,29 +1,24 @@
-This is the README for Michael Scheie's Compilers Lab 2 Submission
+This is the README for Michael Scheie's Compilers Lab Submission
 
 Comments have been added accordingly to the following files:
-	testProgram.c
-	EmptyStmt.java
-	Parser.cup
-	Scanner.jflex
-
-Parser.cup, Scanner.jflex, and testProgram.c have their comments contained within the code.
-
-EmptyStmt.java has the comments contained the code as well, but can also be seen in .html format.
-
-NOTE: Since this lab actively modifies the code between phases, older phases
-will no longer work due to those changes.
-
-//////////////////////////////////////////////////////////////////////////////////////
-This is the README for Michael Scheie's Compilers Lab 3 Submission
-Collaborators: Cody, Kelsan, Tony, Bryan, Greg, James
-
-Comments have been added accordingly to the following files
-	AssignmentStmt.java
+	ComparisonExpr.java
 	Compiler.java
-	DeclarationStmt.java
-	LoadExpr.java
+	EqEqExpr.java
+	HashTable.java
+	IfElseStmt.java
+	IfStmt.java
+	LessEqExpr.java
+	LessExpr.java
+	MoreEqExpr.java
+	MoreExpr.java
+	NotEqExpr.java
+	Procedure.java
 	SymbolTable.java
+	WhileStmt.java
 	Parser.cup
 	scanner.jflex
-	
-NOTE: The .java files have comments contained in the code, but it can also be seen in .html format.
+	testProgram.c
+
+The last phase asked us to allocate variables accordingly if they were within loops etc. We extracted 
+all the allocation lines and moved them to the top. Procedure.java includes more comments about it.
+We can see that it is working by checking testProgram.ll where all the "alloca" commands are at the top.

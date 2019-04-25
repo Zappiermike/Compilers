@@ -4,17 +4,19 @@ import java.util.HashMap;
 import java.util.List;
 
 
-/** The <code>SymbolTable</code> class holds the information for our hash table that connects declared variables and their
- * according values, if they have any. Methods are given to support inserting, removing, and verifying that variables exist.
+/** The <code>HashTable</code> class holds the information for our hash table that connects declared variables and their
+ * according values, if they have any. Various methods have been implemented to help assist in ease of access to the table.
  */
 
 public class HashTable<K,V> {
 	
+	/** Declaring variables
+	 */
 	private List<Map<K,V>> map;
 	private int nestLevel;
 	
 	
-	/** Initialize the <code>hash table</code> to be used in the class
+	/** Initialize the <code>hash table</code> and the <code>Nest Level</code> to be used in the class
 	 */
 	public HashTable(){
     	map = new ArrayList<Map<K,V>>();
@@ -47,27 +49,41 @@ public class HashTable<K,V> {
 	}
 	
 
-	/**	<code>exists</code> is a static boolean method to check if a key exists in the hash table
+	/**	<code>isLocal</code> is a static boolean method to check if a key exists in the hash table
 	 */
 	public boolean isLocal(K key) {
 		return map.get(nestLevel).containsKey(key);
 	}
 	
+	
+	/**	<code>getLocal</code> is public method that takes in a 
+	 * key and returns the value when looking in the table. The 
+	 * method returns null if there is no value with the given key.
+	 */
 	public V getLocal(K key) {
 		if (isLocal(key))
 			return getVal(key);
 		return null;
 	}
 	
+	/**	<code>enterScope</code> is a void method that increases the nesting level. 
+	 * This is used to assist in keeping track in things like loops.
+	 */
 	public void enterScope() {
 		map.add(new HashMap<K,V>());
 		nestLevel++;
 	}
 	
+	/**	<code>exitScope</code> is a void method that decreases the nesting level. 
+	 * This is used to assist in keeping track in things like loops.
+	 */
 	public void exitScope() {
 		map.remove(nestLevel--);
 	}
 	
+	/**	<code>nestingLevel</code> is a method that returns an 
+	 * integer indicating what nesting level the compiler is at. 
+	 */
 	public int nestingLevel() {
 		return nestLevel;
 	}

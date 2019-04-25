@@ -28,7 +28,8 @@ public abstract class ComparisonExpr extends Expr {
 	
 	
 	/** Generate the LLVM code that can be run to execute some mathematical operation.
-	 *  @return a new string of LLVM code
+	 *  @return a new string of LLVM code. This combines all the information that we've 
+	 *  collected and puts it all into a string that the LLVM will be able to understand.
 	 */
 	public ValueAndCode toLLVM() {
 		ValueAndCode argVal_left = left_operand.toLLVM();
