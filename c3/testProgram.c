@@ -24,7 +24,7 @@ int main(){
 
 	if (3<4){
 		println(222222);
-	} else {
+	}else {
 		println(333333);
 	}
 	while(x<10){
