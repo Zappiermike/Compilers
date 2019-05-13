@@ -12,6 +12,10 @@ terminal MORE, LESS, MOREEQ, LESSEQ, EQEQ, NOTEQ;
 non terminal Procedure program;
 non terminal Stmt stmt;
 
+// Adding a new SequenceProcedure called programs to handle multiple Procedures
+non terminal SequenceProcedure programs;
+
+
 
 /** Added a new non-terminal Statements called stmts, decl, and decls. stmts takes care of 
  * cases when we want multiple statements within the program. decl and decls handle the
@@ -30,19 +34,45 @@ precedence left UMINUS;
 
 
 
+
+
+
+
+
+/** SequenceProcedure called programs can handle multiple Procedures. 'programs' first looks
+ *  to see if there is one or multiple Procedures. If there's just one, we run the code just
+ *  like usual. If there are two or more Procedures then we recursively continue running
+ *  Procedures until we are down to just one Procedure again
+ */
+programs ::= programs:m program:p
+             {: m.add(p); RESULT = m; :}
+             |
+             program:p
+             {: RESULT = new SequenceProcedure(p); :}
+             ;
+
 /** Program now has two paths to take depending on what is passed in.
  *  Each statement is separated by a semicolon that we created from a previous lab phase. Following the 
  *  statements, we end the program with a right curly bracket. The compilers has a choice depending on 
  *  whether there are given statements.
  */
-program ::= INT:i LETTER:l LPAREN RPAREN LCURLY stmts:s RCURLY 
-            {: RESULT = new Procedure(l,
-                                      new SequenceStmt(s,
-                                                       new ReturnStmt(new ConstExpr(0)))); :}
+program ::= INT LETTER:l LPAREN INT LETTER:ll RPAREN LCURLY
+            {: SymbolTable.getTable().enterScope();
+               String val = NameAllocator.getTempAllocator().next();
+               SymbolTable.getTable().setVal(ll, val); :}
+               stmts:s
+               {: RESULT = new Procedure(l, ll, new SequenceStmt(s, new ReturnStmt(new ConstExpr(0)))); :}
+               RCURLY
+               {: SymbolTable.getTable().exitScope(); :}
             |
-            INT LETTER:l LPAREN RPAREN LCURLY RCURLY
-            {: RESULT = new Procedure(l, new ReturnStmt(new ConstExpr(0))); :}
-            ;
+            INT LETTER:l LPAREN INT LETTER:ll RPAREN LCURLY
+            {: SymbolTable.getTable().enterScope();
+               String val = NameAllocator.getTempAllocator().next();
+               SymbolTable.getTable().setVal(ll, val);
+               RESULT = new Procedure(l, ll, new ReturnStmt(new ConstExpr(0))); :}
+               RCURLY
+               {: SymbolTable.getTable().exitScope(); :}
+               ;
 
 
 
@@ -186,9 +216,12 @@ expr      ::= expr:l PLUS expr:r
               LPAREN expr:e RPAREN
               {: RESULT = e; :}
           |
-              /**Added this expression for when someone calls just the name, the value 
-               * associated will be loaded
+              /** Added this expression for when someone calls just the name, the value 
+               *  associated will be loaded. Also adding a String pointer because LoadExpr
+               *  now takes in three arguments. The pointer points to the value associated
+               *  with the LETTER:l
                */
               LETTER:l
-              {: RESULT = new LoadExpr(l, lleft); :}
+              {: String pointer = SymbolTable.getTable().getVal(l);
+                 RESULT = new LoadExpr(l, lleft, pointer); :}
 	      ;

@@ -11,7 +11,9 @@ public class DeclarationStmt extends Stmt {
 	 */
 	
 	
-	/** String <code>var_name</code> to take place as the label for the declared variable
+	/** String <code>var_name</code> to take place as the label for the declared variable.
+	 *  character_location keeps track of the corresponding integer location to help with error correcting. 
+	 *  Pointer is a reference to the symboltable used to keep track of the String var_name
 	 */	
 	private String var_name;
 	private int character_location;

@@ -1,46 +1,47 @@
 
+// Main function to test that our 'result' is being handled correctly
+int main(int result){
+  result = 15;
+	while (result >= 0){
+    println(result);
+    result = result - 5;
+  }
+	println('d');
+	//putchar('a');
 
-int main(){
-	// 0 means false
-	// 1 means true
-
-// All of these were used for the comparison operation
-//	println(7<4);
-//	println(3>6);
-//	println(1==0);
-//	println(8<=6);
-//	println(4>=6);
-//	println(7!=7);
-//	println(1<4);
-//	println(8>6);
-//	println(0==0);
-//	println(6<=6);
-//	println(6>=6);
-//	println(6!=7);
-
-// All of these test the IF,ELSE,WHILE conditions
-//	int x = 0;
-//	if (3<4)
-//		println(111111);
-//
-	if (5<4){
-		println(222222);
-	} else {
-		println(333333);
-	}
-//	while(x<10){
-//		println(x);
-//		x = x + 1;
-//	}
-//	println(x + 30);
-
-// This tests the variable allocation issue
-//	int n = 100;
-//	      while (n) {
-//	        int x = n;
-//	        println(x);
-//	        n = n - 1;
-//	      }
+}
 
 
+// The functions below handle both multi-procedures as well as creating print and println
+//   functions outside of the compiler that we pass it in
+
+int print(int n){
+  if(n < 0){
+    putchar('-');
+    n = -n;
+  }
+  if(n < 0){
+    putchar('2');
+    putchar('1');
+    putchar('4');
+    putchar('7');
+    putchar('4');
+    putchar('8');
+    putchar('3');
+    putchar('6');
+    putchar('4');
+    putchar('8');
+  } else {
+    if(n >= 10){
+      print(n/10);
+    }
+    putchar(n%10 + '0');
+  }
+  return 0;
+}
+
+int println(int n){
+  print(n);
+  putchar('\n');
+  return 0;
 }

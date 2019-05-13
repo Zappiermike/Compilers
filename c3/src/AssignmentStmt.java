@@ -7,7 +7,9 @@
 public class AssignmentStmt extends Stmt {
 	
 	
-	/** Declaring the key and value pair
+	/** Declaring the key to be used to find the correct value. characterLocation keeps track of the corresponding
+	 *  integer location to help with error correcting. Pointer is a reference to the symboltable used to keep track
+	 *  of the String key
 	 */
 	private Expr value;
 	private String key;
@@ -31,6 +33,6 @@ public class AssignmentStmt extends Stmt {
 			Compiler.error("Error at " + characterLocation + ". This variable has not been declared!");
 		}
 		ValueAndCode llvm = value.toLLVM();
-		return llvm.getCode() + "    " + " store" + " i32 " + llvm.getValue() + ", " + "i32* " + SymbolTable.getTable().getVal(key) + "\n";
+		return llvm.getCode() + "    " + " store" + " i32 " + llvm.getValue() + ", " + "i32* " + pointer + "\n";
 	};
 }

@@ -4,17 +4,21 @@
 
 public class LoadExpr extends Expr{
 	
-	/** Declaring the String variable
+	/** Declaring the String variable to load, the character location for the String variable, and the pointer
+	 *  that references the String variable's location 
 	 */
 	private String variable;
 	private int characterLocation;
+	private String pointer;
 	
 	
 	/** Constructor for the load class
 	 */
-	public LoadExpr(String v, int cl) {
+	public LoadExpr(String v, int cl, String pointer) {
+		assert pointer != null;
 		this.variable = v;
 		this.characterLocation = cl;
+		this.pointer = pointer;
 	}
 	
 	
@@ -22,11 +26,11 @@ public class LoadExpr extends Expr{
 	 * doing that, we test to make sure that the variable has already been declared.
 	 */
 	public ValueAndCode toLLVM() {
-		if (SymbolTable.getTable().getVal(variable) == null) {
+		if (pointer == null) {
 			Compiler.error("Error at " + characterLocation + ". There is no value assigned to this variable!");
 		}
 		String reg_location = NameAllocator.getTempAllocator().next();
-		String code = "    " + reg_location + " = " + "load" + " i32, i32* " + SymbolTable.getTable().getVal(variable) + "\n";
+		String code = "    " + reg_location + " = " + "load" + " i32, i32* " + pointer + "\n";
 		return new ValueAndCode(reg_location, code);
 	}
 	

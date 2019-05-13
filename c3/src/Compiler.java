@@ -44,22 +44,25 @@ public class Compiler {
 		else
 			parseTree = parser.parse();
 
-		Procedure mainProc = (Procedure) parseTree.value;
+		/**	<code>mainProc</code> is now an instance of <code>SequenceProcedure</code> instead
+		 *  our regular <code>Procedure</code>. We made this change in order to handle
+		 *  multiple Procedures within the test code.
+	 	 */
+
+		SequenceProcedure mainProc = (SequenceProcedure) parseTree.value;
+		// Ensure no errors were found while parsing the code. Pass onto LLVM if none appear
+		if (counter > 0){
+			System.exit(1);
+		}
 		String mainCode = mainProc.toLLVM();
+		
 
 		try {
-			// Check to see if any errors have occurred before continuing
-			if (counter == 0) {
 				FileWriter output = new FileWriter(outputFileName);
 				output.write("target triple = \"" + Target.TRIPLE + "\"\n");
 				output.write(LibraryDeclarations.get());
 				output.write(mainCode);
 				output.close();
-			}
-			// If errors are found, exit the compiler immediately
-			else {
-				System.exit(1);
-			}
 		} catch(IOException e){
 			System.err.println("I/O exception: " + e);
 			System.exit(1);

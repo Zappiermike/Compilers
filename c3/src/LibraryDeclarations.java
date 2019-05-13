@@ -21,9 +21,13 @@ public class LibraryDeclarations {
 	 */
 
 	public static String get(){
-		return "declare i32 @putchar(i32)\n"
-				+  "declare i32 @print(i32)\n"
-				+  "declare i32 @println(i32)\n";
+		return "declare i32 @putchar(i32)\n";
+
+		/**Commenting "print" and "println" out to test that our own compiler can create
+		 * the same fuctions on its own
+		 */
+				//+  "declare i32 @print(i32)\n"
+				//+  "declare i32 @println(i32)\n";
 	}
 
 	private LibraryDeclarations(){}  // purely static class; no public default constructor

@@ -1,24 +1,17 @@
 This is the README for Michael Scheie's Compilers Lab Submission
 
 Comments have been added accordingly to the following files:
-	ComparisonExpr.java
+	AssignmentStmt.java
 	Compiler.java
-	EqEqExpr.java
-	HashTable.java
-	IfElseStmt.java
-	IfStmt.java
-	LessEqExpr.java
-	LessExpr.java
-	MoreEqExpr.java
-	MoreExpr.java
-	NotEqExpr.java
-	Procedure.java
-	SymbolTable.java
-	WhileStmt.java
+	DeclarationStmt.java
+	library.c
+	LibraryDeclarations.java
+	LoadExpr.java
 	Parser.cup
+	Procedure.java
 	scanner.jflex
-	testProgram.c
+	SequenceProcedure.java
 
-The last phase asked us to allocate variables accordingly if they were within loops etc. We extracted 
-all the allocation lines and moved them to the top. Procedure.java includes more comments about it.
-We can see that it is working by checking testProgram.ll where all the "alloca" commands are at the top.
+The last phase asked us to handle putchar and println using our own compiler by
+passing them as arguments in our testProgram.c file. This is commented in library.c
+and LibraryDeclarations.java

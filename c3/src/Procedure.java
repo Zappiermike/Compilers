@@ -15,15 +15,21 @@ public class Procedure {
 
 	private String name;
 	private Stmt body;
+	private String param;
+	private String llvmVal;
 
 	/** Constructs a <code>Procedure</code> with specified name and body.
 	 *  @param name the procedure's name
 	 *  @param body the statement to execute when the procedure is called
+	 *  @param param the parameter when handling a condition in the Procedure
+	 *  <code>llvmVal</code> grabs the value of our <code>param</code>
 	 */
 
-	public Procedure(String name, Stmt body){
+	public Procedure(String name, String param, Stmt body){
 		this.name = name;
+		this.param = param;
 		this.body = body;
+		llvmVal = SymbolTable.getTable().getVal(param);
 	}
 
 	/** Generate the LLVM code that defines this procedure.
@@ -46,7 +52,10 @@ public class Procedure {
 		
 		bodyCode = String.join("\n", splitCode);					// Rejoin bodyCode by \n
 		String allocated = String.join("\n", allocas);				// Rejoin all the "alloca" declarations by \n
+		String temp = NameAllocator.getTempAllocator().next();
 		
-		return "\ndefine i32 @" + name + "() {\n" + allocated + bodyCode + "}\n";
+		return "\ndefine i32 @" + name + "(i32 " + temp + ") {\n" + llvmVal 
+			+ " = alloca i32 ; parameter " + param + "\n store i32 " 
+			+ temp + ", i32* " + llvmVal + "\n" + allocated + bodyCode + "}\n";
 	}
 }

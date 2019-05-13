@@ -30,6 +30,10 @@ return                  {return makeToken(sym.RETURN);}
 //Added this regex string to find any name that starts with a letter and can be followed by more letters/numbers.
 [a-zA-Z][a-zA-Z0-9]*    {return makeToken(sym.LETTER, yytext());}
 
+//More regex to aid in handling single characters in putchar and println
+'[^\n]'                 {return makeToken(sym.NUMBER, ""+ (int) yytext().charAt(1)); }
+'\\n'                   {return makeToken(sym.NUMBER, "10"); }
+
 //Added semicolon according to the third phase in the project
 ";"                     {return makeToken(sym.SEMI);}
 ","                     {return makeToken(sym.COMMA);}
