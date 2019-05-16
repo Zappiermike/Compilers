@@ -52,7 +52,7 @@ precedence left UMINUS;
  *  Procedures until we are down to just one Procedure again
  */
 programs ::= programs:m procDecl:pd
-             {: m.add(pd); RESULT = m; ArrayList<String> test = new ArrayList<String>(); :}
+             {: m.add(pd); RESULT = m; :}
              |
              programs:m procedure:pro
              {: m.add(pro); RESULT = m; :}
