@@ -31,8 +31,9 @@ return                  {return makeToken(sym.RETURN);}
 [a-zA-Z][a-zA-Z0-9]*    {return makeToken(sym.LETTER, yytext());}
 
 //More regex to aid in handling single characters in putchar and println
-'[^\n]'                 {return makeToken(sym.NUMBER, ""+ (int) yytext().charAt(1)); }
+'[^\n]' {return makeToken(sym.NUMBER, ""+ (int) yytext().charAt(1)); }
 '\\n'                   {return makeToken(sym.NUMBER, "10"); }
+
 
 //Added semicolon according to the third phase in the project
 ";"                     {return makeToken(sym.SEMI);}

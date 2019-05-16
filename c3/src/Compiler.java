@@ -60,7 +60,7 @@ public class Compiler {
 		try {
 				FileWriter output = new FileWriter(outputFileName);
 				output.write("target triple = \"" + Target.TRIPLE + "\"\n");
-				output.write(LibraryDeclarations.get());
+				//output.write(LibraryDeclarations.get());
 				output.write(mainCode);
 				output.close();
 		} catch(IOException e){

@@ -1,31 +1,42 @@
+import java.util.List;
+import java.util.ArrayList;
+
 terminal PLUS, MINUS, TIMES, DIVIDE, MOD;
 terminal LPAREN, RPAREN;
 terminal UMINUS, ILLEGAL_CHAR;
 
 
 //Added most of the following terminals listed below based on requirements listed in the project
-terminal String NUMBER, LETTER, INT, IF, WHILE, ELSE, RETURN;
-terminal SEMI, LCURLY, RCURLY, COMMA, EQUALS;
-terminal MORE, LESS, MOREEQ, LESSEQ, EQEQ, NOTEQ;
+terminal String NUMBER;
+terminal String LETTER;
+terminal INT;
+terminal LCURLY, RCURLY;
+terminal EQUALS;
+terminal COMMA;
+terminal IF;
+terminal WHILE;
+terminal SEMI;
+terminal MORE;
+terminal LESS;
+terminal MOREEQ;
+terminal LESSEQ;
+terminal EQEQ;
+terminal NOTEQ;
+terminal ELSE;
+terminal RETURN;
 
-
-non terminal Procedure program;
 non terminal Stmt stmt;
-
-// Adding a new SequenceProcedure called programs to handle multiple Procedures
-non terminal SequenceProcedure programs;
-
-
-
-/** Added a new non-terminal Statements called stmts, decl, and decls. stmts takes care of 
- * cases when we want multiple statements within the program. decl and decls handle the
- * situation when we want to define/assign multiple variables/values within one line,
- * each command being separated by a comma.
- */
-non terminal Stmt stmts;
 non terminal Expr expr;
+non terminal Stmt stmts;
 non terminal Stmt decl;
 non terminal Stmt decls;
+non terminal Procedure procedure;
+non terminal ProcedureDecl procDecl;
+non terminal SequenceProcedure programs;
+non terminal String param;
+non terminal List<String> params, restParams;
+non terminal Expr argue;
+non terminal List<Expr> arguments, restArguments;
 
 precedence left PLUS, MINUS;
 precedence left TIMES, DIVIDE, MOD;
@@ -35,44 +46,53 @@ precedence left UMINUS;
 
 
 
-
-
-
-
 /** SequenceProcedure called programs can handle multiple Procedures. 'programs' first looks
  *  to see if there is one or multiple Procedures. If there's just one, we run the code just
  *  like usual. If there are two or more Procedures then we recursively continue running
  *  Procedures until we are down to just one Procedure again
  */
-programs ::= programs:m program:p
-             {: m.add(p); RESULT = m; :}
+programs ::= programs:m procDecl:pd
+             {: m.add(pd); RESULT = m; ArrayList<String> test = new ArrayList<String>(); :}
              |
-             program:p
-             {: RESULT = new SequenceProcedure(p); :}
+             programs:m procedure:pro
+             {: m.add(pro); RESULT = m; :}
+             |
+             {: RESULT = new SequenceProcedure(); :}
              ;
 
-/** Program now has two paths to take depending on what is passed in.
- *  Each statement is separated by a semicolon that we created from a previous lab phase. Following the 
- *  statements, we end the program with a right curly bracket. The compilers has a choice depending on 
- *  whether there are given statements.
- */
-program ::= INT LETTER:l LPAREN INT LETTER:ll RPAREN LCURLY
-            {: SymbolTable.getTable().enterScope();
-               String val = NameAllocator.getTempAllocator().next();
-               SymbolTable.getTable().setVal(ll, val); :}
+procDecl ::= INT LETTER:l LPAREN params:p RPAREN SEMI
+             {: RESULT = new ProcedureDecl(l, p); :}
+            ;
+
+procedure ::= INT LETTER:l LPAREN params:p RPAREN LCURLY
+             {: SymbolTable.getTable().enterScope();
+                for (String param : p){
+                  String val = NameAllocator.getTempAllocator().next();
+                  SymbolTable.getTable().setVal(param, val);
+                }
+             :}
                stmts:s
-               {: RESULT = new Procedure(l, ll, new SequenceStmt(s, new ReturnStmt(new ConstExpr(0)))); :}
+               {: RESULT = new Procedure(l, p, new SequenceStmt(s, new ReturnStmt(new ConstExpr(0)))); :}
                RCURLY
                {: SymbolTable.getTable().exitScope(); :}
+              ;
+
+params ::= param:p restParams:remain
+          {: remain.add(0,p); RESULT = remain; :}
+          |
+          {: RESULT = new ArrayList<String>(); :}
+          ;
+
+param ::= INT LETTER:l
+          {: RESULT = l; :}
+          ;
+
+
+restParams ::= COMMA param:p restParams:remain
+            {: remain.add(0,p); RESULT = remain; :}
             |
-            INT LETTER:l LPAREN INT LETTER:ll RPAREN LCURLY
-            {: SymbolTable.getTable().enterScope();
-               String val = NameAllocator.getTempAllocator().next();
-               SymbolTable.getTable().setVal(ll, val);
-               RESULT = new Procedure(l, ll, new ReturnStmt(new ConstExpr(0))); :}
-               RCURLY
-               {: SymbolTable.getTable().exitScope(); :}
-               ;
+            {: RESULT = new ArrayList<String>(); :}
+            ;
 
 
 
@@ -181,41 +201,41 @@ expr      ::= expr:l PLUS expr:r
               expr:l MOD expr:r
               {: RESULT = new RemainderExpr(l, r); :}
 	      |
-	          expr:l MORE expr:r
-	          {: RESULT = new MoreExpr(l, r); :}
+  	          expr:l MORE expr:r
+  	          {: RESULT = new MoreExpr(l, r); :}
 	      |
-	         expr:l LESS expr:r
-	          {: RESULT = new LessExpr(l, r); :}
+  	         expr:l LESS expr:r
+  	          {: RESULT = new LessExpr(l, r); :}
 	      |
-	         expr:l MOREEQ expr:r
-	          {: RESULT = new MoreEqExpr(l, r); :}
+  	         expr:l MOREEQ expr:r
+  	          {: RESULT = new MoreEqExpr(l, r); :}
 	      |
-	         expr:l LESSEQ expr:r
-	          {: RESULT = new LessEqExpr(l, r); :}
+  	         expr:l LESSEQ expr:r
+  	          {: RESULT = new LessEqExpr(l, r); :}
 	      |
-	         expr:l EQEQ expr:r
-	          {: RESULT = new EqEqExpr(l, r); :}
+  	         expr:l EQEQ expr:r
+  	          {: RESULT = new EqEqExpr(l, r); :}
 	      |
-	         expr:l NOTEQ expr:r
-	          {: RESULT = new NotEqExpr(l, r); :}
+  	         expr:l NOTEQ expr:r
+  	          {: RESULT = new NotEqExpr(l, r); :}
 	      |
               MINUS expr:e
               {: RESULT = new DifferenceExpr(new ConstExpr(0), e); :}
- 	      %prec UMINUS
+ 	            %prec UMINUS
 	      |
               NUMBER:n
               {: RESULT = new ConstExpr(Integer.parseInt(n)); :}
 	      |
-	          /**Added this expression based on phase two in the project. This allows the program to accept 
-	           * procedures to be called with names. LETTER:l clumps the letters together of the name that
-	           * the user has created i.e. "println"
-	           */
-	          LETTER:l LPAREN expr:e RPAREN 
-              {: RESULT = new CallExpr(l, e); :}
-	      |
               LPAREN expr:e RPAREN
               {: RESULT = e; :}
-          |
+        |
+              /**Added this expression based on phase two in the project. This allows the program to accept 
+               * procedures to be called with names. LETTER:l clumps the letters together of the name that
+               * the user has created i.e. "println"
+               */
+              LETTER:l LPAREN arguments:a RPAREN 
+              {: RESULT = new CallExpr(l, a); :}
+        |
               /** Added this expression for when someone calls just the name, the value 
                *  associated will be loaded. Also adding a String pointer because LoadExpr
                *  now takes in three arguments. The pointer points to the value associated
@@ -225,3 +245,20 @@ expr      ::= expr:l PLUS expr:r
               {: String pointer = SymbolTable.getTable().getVal(l);
                  RESULT = new LoadExpr(l, lleft, pointer); :}
 	      ;
+
+arguments ::= argue:a restArguments:rest
+         {: rest.add(0,a); RESULT = rest; :}
+        |
+         {: RESULT = new ArrayList<Expr>(); :}
+        ;
+
+
+argue ::= expr:e
+          {: RESULT = e; :}
+          ;
+
+restArguments ::= COMMA argue:a restArguments:rest
+                  {: rest.add(0,a); RESULT = rest; :}
+                |
+                  {: RESULT = new ArrayList<Expr>(); :}
+                ;

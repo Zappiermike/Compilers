@@ -1,27 +1,45 @@
 /** An expression evaluated by calling a named procedure.
  *  Limitations: the procedure must take one <code>int</code> argument and return an <code>int</code> value.
  */
-
+import java.util.*;
 public class CallExpr extends Expr {
 
 	private String procName;
-	private Expr argument;
+	private List<Expr> argument;
 
 	/** Constructs a <code>CallExpr</code> with a given procedure name and argument.
 	 *  @param procName the name of the procedure to call
 	 *  @param argument the expression that computes the argument value
 	 */
 
-	public CallExpr(String procName, Expr argument){
+	public CallExpr(String procName, List<Expr> argument){
 		this.procName = procName;
 		this.argument = argument;
 	}
 
 	public ValueAndCode toLLVM(){
-		ValueAndCode argValAndCode = argument.toLLVM();
 		String value = NameAllocator.getTempAllocator().next();
-		String code = argValAndCode.getCode() +
-				"    " + value + " = call i32 @" + procName + "(i32 " + argValAndCode.getValue() + ")\n";
-		return new ValueAndCode(value, code);
+		StringBuilder start = new StringBuilder("");
+		StringBuilder body = new StringBuilder("    ");
+		body.append(value);
+		body.append(" = call i32 @");
+		body.append(procName);
+		body.append("(");
+		
+		for (int i = 0; i < argument.size(); i++){
+			Expr e = argument.get(i);
+			ValueAndCode vc = e.toLLVM();
+			start.append(vc.getCode());
+			if (i > 0) {
+				body.append(", ");
+			}
+			body.append("i32 ");
+			body.append(vc.getValue());
+		}
+		body.append(")\n");
+
+		StringBuilder total = new StringBuilder(start);
+		total.append(body);
+		return new ValueAndCode(value, total.toString());
 	}
 }

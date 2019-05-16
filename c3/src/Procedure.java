@@ -1,5 +1,4 @@
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /** An Abstract Syntax Tree (AST) node representing a procedure.
  *  Limitations:
@@ -15,8 +14,9 @@ public class Procedure {
 
 	private String name;
 	private Stmt body;
-	private String param;
-	private String llvmVal;
+	private List<String> params;
+	private List<String> llvmp;
+	//public List<String> nameCheck;
 
 	/** Constructs a <code>Procedure</code> with specified name and body.
 	 *  @param name the procedure's name
@@ -25,11 +25,44 @@ public class Procedure {
 	 *  <code>llvmVal</code> grabs the value of our <code>param</code>
 	 */
 
-	public Procedure(String name, String param, Stmt body){
+	public Procedure(String name, List<String> params, Stmt body){
 		this.name = name;
-		this.param = param;
+		this.params = params;
 		this.body = body;
-		llvmVal = SymbolTable.getTable().getVal(param);
+		llvmp = new ArrayList<String>();
+		//nameCheck = new ArrayList<String>();
+		for (String param: params) {
+			llvmp.add(SymbolTable.getTable().getVal(param));
+		}
+
+	}
+
+	public String getName(){
+		return name;
+	}
+
+	public int getNameParams() {
+		return params.size();
+	}
+
+
+
+	private String organize(String code){
+		Scanner sc = new Scanner(code);
+		StringBuilder alloca = new StringBuilder("");
+		StringBuilder other = new StringBuilder("");
+		while (sc.hasNextLine()) {
+			String line = sc.nextLine();
+			if (line.contains("alloca")) {
+				alloca.append(line);
+				alloca.append("\n");
+			} else{
+				other.append(line);
+				other.append("\n");
+			}
+		}
+		sc.close();
+		return alloca.append(other).toString();
 	}
 
 	/** Generate the LLVM code that defines this procedure.
@@ -39,23 +72,47 @@ public class Procedure {
 	 */
 
 	public String toLLVM(){
-		String bodyCode = body.toLLVM();
-		List<String> allocas = new ArrayList<String>();				// Create a new array of strings that will hold all the "alloca" declarations
-		String [] splitCode = bodyCode.split("\n");					// Split the string based on \n
-		
-		for (int line = 0; line < splitCode.length; line++) {		// For loop that'll run through the length of our entire code body
-			if (splitCode[line].indexOf("alloca") != -1) {			// Find lines containing "alloca", add them to allocas array, remove it from bodyCode
-				allocas.add(splitCode[line]);
-				splitCode[line] = "";
+
+		// if (nameCheck.contains(name)){
+		// 	Compiler.error("The procedure name: " + name + " has already been defined");
+		// }else{
+		// 	nameCheck.add(name);
+		// 	System.err.println("added " + name + "\n The list is now: " + nameCheck);
+		// }
+		StringBuilder start = new StringBuilder("");
+		StringBuilder bodyCode = new StringBuilder("\ndefine i32 @");
+		bodyCode.append(name);
+		bodyCode.append("(");
+
+		for (int i = 0; i < params.size(); i++) {
+			String param = params.get(i);
+			String llvmparam = llvmp.get(i);
+			String temp_reg = NameAllocator.getTempAllocator().next();
+
+			if (i > 0) {
+				bodyCode.append(", ");
 			}
+			bodyCode.append("i32 ");
+			bodyCode.append(temp_reg);
+
+			start.append("    ");
+			start.append(llvmparam);
+			start.append(" = alloca i32");
+			start.append("; parameter ");
+			start.append(param);
+			start.append("\n    store i32");
+			start.append(temp_reg);
+			start.append(", i32* ");
+			start.append(llvmparam);
+			start.append("\n");
 		}
-		
-		bodyCode = String.join("\n", splitCode);					// Rejoin bodyCode by \n
-		String allocated = String.join("\n", allocas);				// Rejoin all the "alloca" declarations by \n
-		String temp = NameAllocator.getTempAllocator().next();
-		
-		return "\ndefine i32 @" + name + "(i32 " + temp + ") {\n" + llvmVal 
-			+ " = alloca i32 ; parameter " + param + "\n store i32 " 
-			+ temp + ", i32* " + llvmVal + "\n" + allocated + bodyCode + "}\n";
+		bodyCode.append(") {\n");
+
+		StringBuilder total = new StringBuilder(bodyCode);
+		total.append(start);
+		total.append(organize(body.toLLVM()));
+		total.append("}\n");
+
+		return total.toString();
 	}
 }

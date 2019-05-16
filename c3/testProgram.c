@@ -1,25 +1,10 @@
+int putchar(int c);
 
-// Main function to test that our 'result' is being handled correctly
-int main(int result){
-  result = 15;
-	while (result >= 0){
-    println(result);
-    result = result - 5;
-  }
-	println('d');
-	//putchar('a');
-
-}
-
-
-// The functions below handle both multi-procedures as well as creating print and println
-//   functions outside of the compiler that we pass it in
-
-int print(int n){
-  if(n < 0){
-    putchar('-');
-    n = -n;
-  }
+int print(int n) {
+   if(n < 0){
+     putchar('-');
+     n = -n;
+   }
   if(n < 0){
     putchar('2');
     putchar('1');
@@ -44,4 +29,36 @@ int println(int n){
   print(n);
   putchar('\n');
   return 0;
+}
+
+int main(int result){
+  println(22222);
+  println(nada());
+  println(dos(6,9));
+  println(four(1,2,3,4));
+}
+
+int nada() {
+  return 9;
+}
+
+int uno(int one) {
+  return one;
+}
+
+int dos (int one, int two){
+  return one + two;
+}
+
+int nada(){
+  return 7;
+}
+
+
+int dos(int one, int three){
+  return one + three;
+}
+
+int four (int one, int two, int three, int four){
+  return one + two + three + four;
 }

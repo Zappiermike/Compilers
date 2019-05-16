@@ -1,4 +1,4 @@
-int putchar(int c);
+/*int putchar(int c); */
 
 
 /** To test that our compiler doesn't need the "println" or "print" functions, we comment the code below

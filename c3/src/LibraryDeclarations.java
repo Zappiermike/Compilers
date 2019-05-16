@@ -14,21 +14,21 @@
  *  included with this compiler.
  */
 
-public class LibraryDeclarations {
+// public class LibraryDeclarations {
 
-	/** Provides the library declarations.
-	 *  @return the LLVM declarations
-	 */
+// 	/** Provides the library declarations.
+// 	 *  @return the LLVM declarations
+// 	 */
 
-	public static String get(){
-		return "declare i32 @putchar(i32)\n";
+// 	public static String get(){
+// 		return "declare i32 @putchar(i32)\n";
 
-		/**Commenting "print" and "println" out to test that our own compiler can create
-		 * the same fuctions on its own
-		 */
-				//+  "declare i32 @print(i32)\n"
-				//+  "declare i32 @println(i32)\n";
-	}
+// 		/**Commenting "print" and "println" out to test that our own compiler can create
+// 		 * the same fuctions on its own
+// 		 */
+// 				//+  "declare i32 @print(i32)\n"
+// 				//+  "declare i32 @println(i32)\n";
+// 	}
 
-	private LibraryDeclarations(){}  // purely static class; no public default constructor
-}
+// 	private LibraryDeclarations(){}  // purely static class; no public default constructor
+// }
