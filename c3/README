@@ -1,17 +1,18 @@
-This is the README for Michael Scheie's Compilers Lab Submission
+This is the README for Michael Scheie's Compilers Lab Submission for San Skulrattanakulchai's Compilers MCS-388
 
 Comments have been added accordingly to the following files:
-	AssignmentStmt.java
-	Compiler.java
-	DeclarationStmt.java
-	library.c
-	LibraryDeclarations.java
+	CallExpr.java
+	Compilers.java
+	HashTable.java
 	LoadExpr.java
-	Parser.cup
+	parser.cup
 	Procedure.java
-	scanner.jflex
+	ProcedureDecl.java
 	SequenceProcedure.java
+	testProgram.c
 
-The last phase asked us to handle putchar and println using our own compiler by
-passing them as arguments in our testProgram.c file. This is commented in library.c
-and LibraryDeclarations.java
+	Note: LibraryDeclarations.java was no longer needed so it was deleted. 
+		  library.c was also no longer needed, but the clang build will fail
+		  if it doesn't find a library.c file. Thus, a library.c file does exist
+		  but it contains a single comment
+

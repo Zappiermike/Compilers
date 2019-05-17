@@ -21,7 +21,9 @@ public class Procedure {
 	 *  @param name the procedure's name
 	 *  @param body the statement to execute when the procedure is called
 	 *  @param param the parameter when handling a condition in the Procedure
-	 *  <code>llvmVal</code> grabs the value of our <code>param</code>
+	 *  <code>llvmVal</code> grabs the value of our <code>param</code>.
+	 *  For each <code>param</code> that gets passed in, we get its value from
+	 *  <code>SymbolTable</code>.
 	 */
 
 	public Procedure(String name, List<String> params, Stmt body){
@@ -35,16 +37,25 @@ public class Procedure {
 
 	}
 
+	/** <code>getName</code> method takes a String and returns 
+	 *  a String type of the name
+	 */
 	public String getName(){
 		return name;
 	}
 
+	/** <code>getNameParams</code> is a int method that returns
+	 *  the size of the size of the String List of parameters
+	 */
 	public int getNameParams() {
 		return params.size();
 	}
 
 
-
+	/** <code>organize</code> is a method to extract the 'alloca'
+	 *  statements from the LLVM code, and bring them to the top
+	 *  of our LLVM code.
+	 */
 	private String organize(String code){
 		Scanner sc = new Scanner(code);
 		StringBuilder alloca = new StringBuilder("");

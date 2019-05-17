@@ -16,7 +16,11 @@ public class CallExpr extends Expr {
 		this.procName = procName;
 		this.argument = argument;
 	}
-
+ 
+	/** <code>LLVM</code> method is a <code>ValueAndCode</code> type that converts the
+	 *  the given inputs into LLVM string that the compiler will understand. This 
+	 *  includes sorting all the alloca's to the top of the compiler
+	 */
 	public ValueAndCode toLLVM(){
 		String value = NameAllocator.getTempAllocator().next();
 		StringBuilder start = new StringBuilder("");

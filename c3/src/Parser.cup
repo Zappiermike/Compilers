@@ -27,6 +27,7 @@ terminal NOTEQ;
 terminal ELSE;
 terminal RETURN;
 
+// Added the following non-terminals to create a more functional compiler
 non terminal Stmt stmt;
 non terminal Expr expr;
 non terminal Stmt stmts;
@@ -62,6 +63,10 @@ programs ::= programs:m procDecl:pd
              {: RESULT = new SequenceProcedure(); :}
              ;
 
+/** procDecl comes from the new java class ProcedureDecl in that it first checks to make sure
+ *  that the Procedure being called hasn't been created already. We have two checks for that
+ *  otherwise the new Procedure gets declared
+ */
 procDecl ::= INT LETTER:l LPAREN params:p RPAREN SEMI
              {: if (SequenceProcedure.declareCheck(l,p.size())){
                   Compiler.error("The procedure: " + l + " has already been declared!");
@@ -73,6 +78,11 @@ procDecl ::= INT LETTER:l LPAREN params:p RPAREN SEMI
              RESULT = new ProcedureDecl(l, p); :}
             ;
 
+/** procedure is comes from the java class Procedure in that this handles functions that
+ *  also contains curly brackets with statements inside it. We enter scopes accordingly
+ *  and also check to make sure that the function's name/parameters are not duplicates of
+ *  another defined function somewhere else already
+ */
 procedure ::= INT LETTER:l LPAREN params:p RPAREN LCURLY
              {: SymbolTable.getTable().enterScope();
                 for (String param : p){
@@ -93,17 +103,25 @@ procedure ::= INT LETTER:l LPAREN params:p RPAREN LCURLY
                {: SymbolTable.getTable().exitScope(); :}
               ;
 
+/** params is a List of Strings that are called when a new procedure is created. The 
+ *  parameters contained within the left and right parenthesis are all thrown in here.
+ *  The conditions will jump to the other parameter conditions until there are no more parameters
+ */
 params ::= param:p restParams:remain
           {: remain.add(0,p); RESULT = remain; :}
           |
           {: RESULT = new ArrayList<String>(); :}
           ;
 
+/** param is the single case when only one parameter has been passed
+ */
 param ::= INT LETTER:l
           {: RESULT = l; :}
           ;
 
-
+/** restParams is called when there are multiple parameters that are separated by 
+ *  commas. This recursively continues until there is only one parameter left
+ */
 restParams ::= COMMA param:p restParams:remain
             {: remain.add(0,p); RESULT = remain; :}
             |
@@ -112,8 +130,8 @@ restParams ::= COMMA param:p restParams:remain
 
 
 
-/**Created this new statement called stmts to handle cases where we want multiple statements within the program
- * otherwise, if no arguments are given, the program will return nothing.
+/** Created this new statement called stmts to handle cases where we want multiple statements within the program
+ *  otherwise, if no arguments are given, the program will return nothing.
  */
 stmts ::= stmt:s stmts:ss
           {: RESULT = new SequenceStmt(s, ss); :}
@@ -160,9 +178,9 @@ stmt ::= expr:e SEMI
          
          
 /** decls is a statment that gets called when the parser runs into multiple statments that are trying
- * to be defined/assigned in the same line. Each command is separated by a comma, and we continue
- * to recursively call decls until there is no more comma being found. decls doesn't need an INT or
- * SEMI as it is contained within a stmt from above
+ *  to be defined/assigned in the same line. Each command is separated by a comma, and we continue
+ *  to recursively call decls until there is no more comma being found. decls doesn't need an INT or
+ *  SEMI as it is contained within a stmt from above
  */
 decls ::= decls:ds COMMA decl:d
           {: RESULT = new SequenceStmt(ds, d); :}
@@ -174,9 +192,9 @@ decls ::= decls:ds COMMA decl:d
          
          
 /** decl is a statement that gets called when the parser comes across something that needs to be 
- * defined. There are two options. The first is where we just define the variable name. There is
- * no need to add the INT or SEMI portion as decl is already contained between those two in stmt.
- * The second option is where we are declaring the variable as well as assigning it a value. 
+ *  defined. There are two options. The first is where we just define the variable name. There is
+ *  no need to add the INT or SEMI portion as decl is already contained between those two in stmt.
+ *  The second option is where we are declaring the variable as well as assigning it a value. 
  */
 decl ::= LETTER:l
 		 {: String pointer = SymbolTable.getTable().getLocal(l);
@@ -201,7 +219,7 @@ decl ::= LETTER:l
          
  /** expr is list of expressions that can be executed based on what the scanner gives the parser.
   *  Depending on what is parsed, the various java classes will be called with their according arguments.
- */        
+  */        
 expr      ::= expr:l PLUS expr:r
               {: RESULT = new SumExpr(l, r); :}
 	      |
@@ -245,9 +263,10 @@ expr      ::= expr:l PLUS expr:r
               LPAREN expr:e RPAREN
               {: RESULT = e; :}
         |
-              /**Added this expression based on phase two in the project. This allows the program to accept 
-               * procedures to be called with names. LETTER:l clumps the letters together of the name that
-               * the user has created i.e. "println"
+              /** This allows the program to accept 
+               *  procedures to be called with names. LETTER:l clumps the letters together of the name that
+               *  the user has created i.e. "println". While reading function names, we check to make sure
+               *  that the name isn't a duplicate of another function name within the compiler
                */
               LETTER:l LPAREN arguments:a RPAREN 
               {: if (!SequenceProcedure.contains(l, a.size()) && !currentPN.equals(l)) {
@@ -255,7 +274,6 @@ expr      ::= expr:l PLUS expr:r
                  }
 
                 RESULT = new CallExpr(l, a); :}
-              }
         |
               /** Added this expression for when someone calls just the name, the value 
                *  associated will be loaded. Also adding a String pointer because LoadExpr
@@ -267,17 +285,25 @@ expr      ::= expr:l PLUS expr:r
                  RESULT = new LoadExpr(l, lleft, pointer); :}
 	      ;
 
+/** arguments is similar to parameters, but it's a List of Expressions. If there's
+ *  multiple arguments, then it jumps to  restArguments
+ */
 arguments ::= argue:a restArguments:rest
          {: rest.add(0,a); RESULT = rest; :}
         |
          {: RESULT = new ArrayList<Expr>(); :}
         ;
 
-
+/** argue is the singleton case just like param from above. It takes one expression
+ *  and returns that expression as is
+ */
 argue ::= expr:e
           {: RESULT = e; :}
           ;
 
+/** restArguments is called when there are multiple arguments that are separated by 
+ *  commas. This recursively continues until there is only one argument left
+ */
 restArguments ::= COMMA argue:a restArguments:rest
                   {: rest.add(0,a); RESULT = rest; :}
                 |

@@ -1,9 +1,8 @@
+
+//Testing declarations. Need putchar, println, and print in order to see our outputs
 int putchar(int c);
-// int putchar(int c);
 
-
-
-
+//
 int print(int n) {
    if(n < 0){
      putchar('-');
@@ -39,6 +38,11 @@ int nada(){
   return 2;
 }
 
+// Duplicate function of nada to check the compiler. 
+// Will throw error of duplicate function names as 
+// well as matching arguments
+
+
 // int nada(){
 //   return 0;
 // }
@@ -47,6 +51,9 @@ int nada(){
 int dos(int one, int three){
   return one + three;
 }
+
+// Duplicate function of dos to check the compiler. 
+// Will throw error of duplicate names
 
 // int dos(int one, int three, int four){
 //   return one + three;
@@ -57,8 +64,8 @@ int four (int one, int two, int three, int four){
 }
 
 int main(int result){
-  println(22222);
+  println(8888);
   println(nada());
-  println(dos(6,9));
-  println(four(1,2,3,4));
+  println(dos(9,11));
+  println(four(1,2,8,9));
 }
