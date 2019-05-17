@@ -53,6 +53,32 @@ public class SequenceProcedure{
 		}
 	}
 
+
+	public static boolean declareCheck(String procedureName, int parameterAmt){
+		ProcedureDecl procedureD = declProcedure.get(procedureName);
+		return ((procedureD != null) && (parameterAmt == procedureD.getParamAmt()));
+	}
+
+
+	public static boolean defineCheck(String procedureName, int parameterAmt){
+		Procedure procedure = procList.get(procedureName);
+		return ((procedure != null) && (parameterAmt == procedure.getNameParams()));
+	}
+
+
+	public static boolean isDefined(String p){
+		return (procList.get(p) != null);
+	}
+
+
+	public static boolean contains(String procedureName, int parameterAmt){
+		Procedure procedure = procList.get(procedureName);
+		ProcedureDecl procedureD = declProcedure.get(procedureName);
+
+		return ((procedureD != null) && (parameterAmt == procedureD.getParamAmt()) 
+			|| (procedure != null) && (parameterAmt == procedure.getNameParams()));
+	}
+
 	/** <code>toLLVM</code> is a String method that returns the Procedures that were passed in
 	 *  as an argument. The Procedures are converted to their accodring LLVM code before being 
 	 *  sent in the String <code>name</code>

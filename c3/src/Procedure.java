@@ -16,7 +16,7 @@ public class Procedure {
 	private Stmt body;
 	private List<String> params;
 	private List<String> llvmp;
-	//public List<String> nameCheck;
+	public  List<String> nameCheck;
 
 	/** Constructs a <code>Procedure</code> with specified name and body.
 	 *  @param name the procedure's name
@@ -30,7 +30,7 @@ public class Procedure {
 		this.params = params;
 		this.body = body;
 		llvmp = new ArrayList<String>();
-		//nameCheck = new ArrayList<String>();
+		nameCheck = new ArrayList<String>();
 		for (String param: params) {
 			llvmp.add(SymbolTable.getTable().getVal(param));
 		}
@@ -75,7 +75,8 @@ public class Procedure {
 
 		// if (nameCheck.contains(name)){
 		// 	Compiler.error("The procedure name: " + name + " has already been defined");
-		// }else{
+		// }
+		// else{
 		// 	nameCheck.add(name);
 		// 	System.err.println("added " + name + "\n The list is now: " + nameCheck);
 		// }

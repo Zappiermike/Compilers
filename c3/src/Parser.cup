@@ -1,6 +1,8 @@
 import java.util.List;
 import java.util.ArrayList;
 
+action code {: String currentPN = ""; :}
+
 terminal PLUS, MINUS, TIMES, DIVIDE, MOD;
 terminal LPAREN, RPAREN;
 terminal UMINUS, ILLEGAL_CHAR;
@@ -61,7 +63,14 @@ programs ::= programs:m procDecl:pd
              ;
 
 procDecl ::= INT LETTER:l LPAREN params:p RPAREN SEMI
-             {: RESULT = new ProcedureDecl(l, p); :}
+             {: if (SequenceProcedure.declareCheck(l,p.size())){
+                  Compiler.error("The procedure: " + l + " has already been declared!");
+             }
+             else if (SequenceProcedure.defineCheck(l,p.size())){
+                  Compiler.error("The procedure: " + l + " has already been defined!");
+             }
+
+             RESULT = new ProcedureDecl(l, p); :}
             ;
 
 procedure ::= INT LETTER:l LPAREN params:p RPAREN LCURLY
@@ -70,6 +79,13 @@ procedure ::= INT LETTER:l LPAREN params:p RPAREN LCURLY
                   String val = NameAllocator.getTempAllocator().next();
                   SymbolTable.getTable().setVal(param, val);
                 }
+                if (SequenceProcedure.declareCheck(l,p.size())){
+                  Compiler.error("The procedure: + " + l + " has already been declared!");
+                }
+                else if (SequenceProcedure.isDefined(l)){
+                  Compiler.error("The procedure: " + l + " has already been defined!");
+                }
+                currentPN = l;
              :}
                stmts:s
                {: RESULT = new Procedure(l, p, new SequenceStmt(s, new ReturnStmt(new ConstExpr(0)))); :}
@@ -234,7 +250,12 @@ expr      ::= expr:l PLUS expr:r
                * the user has created i.e. "println"
                */
               LETTER:l LPAREN arguments:a RPAREN 
-              {: RESULT = new CallExpr(l, a); :}
+              {: if (!SequenceProcedure.contains(l, a.size()) && !currentPN.equals(l)) {
+                  Compiler.error("This procedure " + l + " is undefined or undeclared!");
+                 }
+
+                RESULT = new CallExpr(l, a); :}
+              }
         |
               /** Added this expression for when someone calls just the name, the value 
                *  associated will be loaded. Also adding a String pointer because LoadExpr
